@@ -6,6 +6,7 @@ import studentsRoutes from './routes/students.routes.js'
 import modulesRoutes from './routes/modules.routes.js'
 import exercisesRoutes from './routes/exercises.routes.js'
 import multipleRoutes from './routes/multiple.routes.js'
+import trueFalseRoutes from './routes/true_false.routes.js'
 
 const app = express()
 
@@ -21,7 +22,8 @@ app.use('/api', teachersRoutes)
 app.use('/api', modulesRoutes)
 app.use('/api', exercisesRoutes)
 app.use('/api', multipleRoutes)
+app.use('/api', trueFalseRoutes)
 
-app.listen(3001, () => {
-    console.log('Servidor iniciado en el puerto 3001');
+app.listen(4001, () => {
+    console.log('Servidor iniciado en el puerto 4001');
 })

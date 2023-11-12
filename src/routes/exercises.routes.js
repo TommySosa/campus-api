@@ -1,6 +1,6 @@
 import { Router} from "express";
 
-import { getExercises, getExerciseById, createExercise, updateExercise, deleteExercise, getExerciseByIdModule } from "../controllers/exercises.controller.js";
+import { getExercises, getExerciseById, createExercise, updateExercise, deleteExercise, getExerciseByIdModule} from "../controllers/exercises.controller.js";
 
 const router = Router();
 

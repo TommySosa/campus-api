@@ -1,9 +1,38 @@
 import {pool} from '../db.js'
 
 export const getModules = async (req, res) => {
-    const [rows] = await pool.query('SELECT * FROM modules')
-    res.json(rows)
-}
+    try {
+        const [rows] = await pool.query(`
+            SELECT modules.*, courses.name as course_name 
+            FROM modules 
+            JOIN courses ON modules.id_course = courses.id_course
+        `);
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+export const getModulesByIdCourse = async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT modules.*, courses.name as course_name 
+            FROM modules 
+            JOIN courses ON modules.id_course = courses.id_course
+            WHERE modules.id_course = ?
+        `, [req.params.id_course]);
+
+        if (rows.length === 0) {
+            res.status(404).json({ error: 'No se encontró el módulo' });
+        } else {
+            res.json(rows);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 export const createModule = async (req, res) => {
     const [result] = await pool.query('INSERT INTO modules (name, id_course) VALUES (?, ?)', [req.body.name, req.body.id_course])
