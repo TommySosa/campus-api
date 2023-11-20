@@ -81,3 +81,39 @@ export const deleteExercise = async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 };
+
+export const createCorrect = async (req, res) => {
+  try {
+    const [result] = await pool.query('insert into correct_exercises(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
+    res.json({
+      id_correct: result.insertId,
+      ...req.body,
+    });
+  } catch (error) {
+    console.error('Error en correct:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}
+
+export const createIncorrect = async (req, res) => {
+  try {
+    const [result] = await pool.query('insert into incorrect_exercises(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
+    res.json({
+      id_correct: result.insertId,
+      ...req.body,
+    });
+  } catch (error) {
+    console.error('Error en incorrect:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}
+
+export const checkExercise = async (req, res) => {
+  try {
+    const [result] = await pool.query('SELECT COUNT(*) AS total FROM (SELECT id_user, id_exercise FROM correct_exercises UNION ALL SELECT id_user, id_exercise FROM incorrect_exercises) AS combined WHERE id_user = ? AND id_exercise = ?', [req.body.id_user,req.body.id_exercise]);
+    res.json(result);
+  } catch (error) {
+    console.error('Error en checkExercise:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}

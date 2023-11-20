@@ -11,7 +11,7 @@ export const getCourseById = async (req, res) => {
 }
 
 export const createCourse = async (req, res) => {
-    const [result] = await pool.query('INSERT INTO courses (name, description, url_image, id_category, id_teacher) VALUES (?, ?, ?, ?)', [req.body.name, req.body.description, req.body.url_image, req.body.id_category, req.body.id_teacher])
+    const [result] = await pool.query('INSERT INTO courses (name, description, url_image, id_category, id_teacher) VALUES (?, ?, ?, ?, ?)', [req.body.name, req.body.description, req.body.url_image, req.body.id_category, req.body.id_teacher])
     res.json({
         id_course: result.insertId,
         ...req.body
