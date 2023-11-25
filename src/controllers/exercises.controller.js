@@ -10,6 +10,26 @@ export const getExercises = async (req, res) => {
   }
 };
 
+export const getCorrectExercisesByidUser = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM correct_exercises where id_user = ?', [req.params.id_user]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error en getCorrectExercises:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+export const getIncorrectExercisesByidUser = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM incorrect_exercises');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error en getIncorrectExercises:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
 export const getExerciseById = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM exercises WHERE id_exercise = ?', [req.params.id_exercise]);
@@ -110,7 +130,7 @@ export const createIncorrect = async (req, res) => {
 
 export const checkExercise = async (req, res) => {
   try {
-    const [result] = await pool.query('SELECT COUNT(*) AS total FROM (SELECT id_user, id_exercise FROM correct_exercises UNION ALL SELECT id_user, id_exercise FROM incorrect_exercises) AS combined WHERE id_user = ? AND id_exercise = ?', [req.body.id_user,req.body.id_exercise]);
+    const [result] = await pool.query('SELECT SUM(total) as total FROM (SELECT COUNT(*) as total FROM correct_exercises WHERE id_user = ? AND id_exercise = ? UNION ALL SELECT COUNT(*) as total FROM incorrect_exercises WHERE id_user = ? AND id_exercise = ?) as combined;', [req.body.id_user,req.body.id_exercise, req.body.id_user,req.body.id_exercise]);
     res.json(result);
   } catch (error) {
     console.error('Error en checkExercise:', error);

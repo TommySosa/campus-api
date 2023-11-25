@@ -1,6 +1,6 @@
 import { Router} from "express";
 
-import { getExercises, getExerciseById, createExercise, updateExercise, deleteExercise, getExerciseByIdModule, createCorrect, createIncorrect, checkExercise} from "../controllers/exercises.controller.js";
+import { getExercises, getExerciseById, createExercise, updateExercise, deleteExercise, getExerciseByIdModule, createCorrect, createIncorrect, checkExercise, getCorrectExercisesByidUser, getIncorrectExercisesByidUser} from "../controllers/exercises.controller.js";
 
 const router = Router();
 
@@ -13,7 +13,8 @@ router.delete('/exercises/:id_exercise', deleteExercise);
 router.post('/exercises/correct', createCorrect);
 router.post('/exercises/incorrect', createIncorrect);
 router.post('/exercises/check', checkExercise);
-
+router.get('/correct/:id_user', getCorrectExercisesByidUser);
+router.get('/incorrect/:id_user', getIncorrectExercisesByidUser);
 
 
 export default router;
