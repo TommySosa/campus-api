@@ -137,3 +137,13 @@ export const checkExercise = async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 }
+
+export const getExercisesTypes = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM exercise_types');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error en getExercisesTypes:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}

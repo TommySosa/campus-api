@@ -10,7 +10,7 @@ export const createAttendance = async (req, res) => {
     try {
         const { dni } = req.body;
     
-        const [userRows, userFields] = await pool.execute('SELECT id_user FROM users WHERE dni = ?', [dni]);
+        const [userRows, userFields] = await pool.execute('SELECT id_user, name, surname, profile_url FROM users WHERE dni = ?', [dni]);
     
         if (userRows.length === 0) {
           return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -20,7 +20,8 @@ export const createAttendance = async (req, res) => {
     
         const [result, fields] = await pool.execute('INSERT INTO attendance (id_user) VALUES (?)', [userId]);
     
-        return res.status(200).json({ message: 'Asistencia registrada exitosamente', attendanceId: result.insertId });
+        console.log(userRows[0].name);
+        return res.status(200).json({ message: 'Asistencia registrada exitosamente', id_attendance: result.insertId, name: userRows[0].name, surname : userRows[0].surname });
       } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Error interno del servidor' });
