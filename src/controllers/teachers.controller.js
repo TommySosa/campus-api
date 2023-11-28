@@ -1,7 +1,7 @@
 import {pool} from '../db.js'
 
 export const getTeachers = async (req, res) => {
-    const [rows] = await pool.query('SELECT * FROM teachers')
+    const [rows] = await pool.query('SELECT * FROM users WHERE id_rol = 2')
     res.json(rows)
 }
 
