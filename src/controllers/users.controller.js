@@ -2,17 +2,17 @@ import { pool } from '../db.js';
 
 export const getUsers = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM users');
+    const [rows] = await pool.query('SELECT * FROM user');
     res.json(rows);
   } catch (error) {
-    console.error('Error en getUsers:', error);
+    console.error('Error en getuser:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 };
 
 export const getUserById = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE id_user = ?', [req.params.id_user]);
+    const [rows] = await pool.query('SELECT * FROM user WHERE id_user = ?', [req.params.id_user]);
     if (rows.length === 0) {
       res.status(404).json({ error: 'No se encontró al usuario' });
     } else {
@@ -20,6 +20,20 @@ export const getUserById = async (req, res) => {
     }
   } catch (error) {
     console.error('Error en getUserById:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+export const getUserByDni = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM user WHERE dni = ?', [req.params.dni]);
+    if (rows.length === 0) {
+      res.status(404).json({ error: 'No se encontró al usuario' });
+    } else {
+      res.json(rows[0]);
+    }
+  } catch (error) {
+    console.error('Error en getUserByDni:', error);
     res.status(500).json({ error: 'Error en el servidor' });
   }
 };
@@ -34,7 +48,7 @@ export const cambiarRolUsuario = async (req, res) => {
     }
 
     // Realiza la actualización del rol del usuario en la base de datos
-    const query = 'UPDATE users SET id_rol = ? WHERE id_user = ?';
+    const query = 'UPDATE user SET id_rol = ? WHERE id_user = ?';
     await pool.query(query, [id_rol, id_user]);
 
     res.status(200).json({ mensaje: 'Rol del usuario actualizado exitosamente' });

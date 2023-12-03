@@ -2,7 +2,7 @@ import { pool } from '../db.js';
 
 export const getExercises = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM exercises');
+    const [rows] = await pool.query('SELECT * FROM exercise where active = true');
     res.json(rows);
   } catch (error) {
     console.error('Error en getExercises:', error);
@@ -12,7 +12,7 @@ export const getExercises = async (req, res) => {
 
 export const getCorrectExercisesByidUser = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM correct_exercises where id_user = ?', [req.params.id_user]);
+    const [rows] = await pool.query('SELECT * FROM correctexercise where id_user = ?', [req.params.id_user]);
     res.json(rows);
   } catch (error) {
     console.error('Error en getCorrectExercises:', error);
@@ -22,7 +22,7 @@ export const getCorrectExercisesByidUser = async (req, res) => {
 
 export const getIncorrectExercisesByidUser = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM incorrect_exercises');
+    const [rows] = await pool.query('SELECT * FROM incorrectexercise where id_user = ?', [req.params.id_user]);
     res.json(rows);
   } catch (error) {
     console.error('Error en getIncorrectExercises:', error);
@@ -30,9 +30,41 @@ export const getIncorrectExercisesByidUser = async (req, res) => {
   }
 };
 
+export const getCorrectExercisesByidCourse = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT COUNT(*) AS correct_exercises_count FROM CorrectExercise ce JOIN Exercise e ON ce.id_exercise = e.id_exercise JOIN Module m ON e.id_module = m.id_module WHERE ce.id_user = ? AND m.id_course = ?; ', 
+    [req.body.id_user, req.body.id_course]);
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error en getCorrectExercisesByidCourse:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+export const getIncorrectExercisesByidCourse = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT COUNT(*) AS incorrect_exercises_count FROM IncorrectExercise ie JOIN Exercise e ON ie.id_exercise = e.id_exercise JOIN Module m ON e.id_module = m.id_module WHERE ie.id_user = ? AND m.id_course = ?; ', [req.body.id_user, req.body.id_course]);
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error en getIncorrectExercisesByidCourse:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+export const getProgressForInscriptions = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT sc.id_course, c.name AS course_name, COUNT(DISTINCT ce.id_correct) AS correct_count, COUNT(DISTINCT ie.id_incorrect) AS incorrect_count FROM StudentCourse sc JOIN Course c ON sc.id_course = c.id_course LEFT JOIN Module m ON c.id_course = m.id_course LEFT JOIN Exercise e ON m.id_module = e.id_module LEFT JOIN CorrectExercise ce ON sc.id_user = ce.id_user AND e.id_exercise = ce.id_exercise LEFT JOIN IncorrectExercise ie ON sc.id_user = ie.id_user AND e.id_exercise = ie.id_exercise WHERE sc.id_user = ? GROUP BY sc.id_course, c.name;'
+    ,[req.params.id_user])
+    res.json(rows)
+  } catch (error) {
+    console.error('Error en getProgressForInscriptions:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}
+
 export const getExerciseById = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM exercises WHERE id_exercise = ?', [req.params.id_exercise]);
+    const [rows] = await pool.query('SELECT * FROM exercise WHERE id_exercise = ? and active = true', [req.params.id_exercise]);
     if (rows.length === 0) {
       res.status(404).json({ error: 'No se encontró el ejercicio' });
     } else {
@@ -46,7 +78,7 @@ export const getExerciseById = async (req, res) => {
 
 export const getExerciseByIdModule = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM exercises WHERE id_module = ?', [req.params.id_module]);
+    const [rows] = await pool.query('SELECT * FROM exercise WHERE id_module = ? and active = true', [req.params.id_module]);
     if (rows.length === 0) {
       res.status(404).json({ error: 'No se encontró el ejercicio en el módulo' });
     } else {
@@ -60,7 +92,7 @@ export const getExerciseByIdModule = async (req, res) => {
 
 export const createExercise = async (req, res) => {
   try {
-    const [result] = await pool.query('INSERT INTO exercises (name, instruction, id_module, id_type) VALUES (?, ?, ?, ?)', [req.body.name, req.body.instruction, req.body.id_module, req.body.id_type]);
+    const [result] = await pool.query('INSERT INTO exercise (name, instruction, id_module, id_type) VALUES (?, ?, ?, ?)', [req.body.name, req.body.instruction, req.body.id_module, req.body.id_type]);
     res.json({
       id_exercise: result.insertId,
       ...req.body,
@@ -73,7 +105,7 @@ export const createExercise = async (req, res) => {
 
 export const updateExercise = async (req, res) => {
   try {
-    const [result] = await pool.query('UPDATE exercises SET name = IFNULL(?, name), instruction = IFNULL(?, instruction), id_module = IFNULL(?, id_module), id_type = IFNULL(?, id_type) WHERE id_exercise = ?', [req.body.name, req.body.description, req.body.id_module, req.body.id_type, req.params.id_exercise]);
+    const [result] = await pool.query('UPDATE exercise SET name = IFNULL(?, name), instruction = IFNULL(?, instruction), id_module = IFNULL(?, id_module), id_type = IFNULL(?, id_type) WHERE id_exercise = ?', [req.body.name, req.body.instruction, req.body.id_module, req.body.id_type, req.params.id_exercise]);
     if (result.affectedRows === 0) {
       res.status(404).json({ error: 'No se encontró el ejercicio para actualizar' });
     } else {
@@ -90,21 +122,17 @@ export const updateExercise = async (req, res) => {
 
 export const deleteExercise = async (req, res) => {
   try {
-    const result = await pool.query('DELETE FROM exercises WHERE id_exercise = ?', [req.params.id_exercise]);
-    if (result.affectedRows === 0) {
-      res.status(404).json({ error: 'No se encontró el ejercicio para eliminar' });
-    } else {
-      res.sendStatus(204);
-    }
+    const [results, fields] = await pool.execute('CALL DesactivarEjercicio(?)', [req.params.id_exercise]);
+    res.json({ message: results[0][0].mensaje });
+
   } catch (error) {
-    console.error('Error en deleteExercise:', error);
-    res.status(500).json({ error: 'Error en el servidor' });
+    console.error(error);
   }
 };
 
 export const createCorrect = async (req, res) => {
   try {
-    const [result] = await pool.query('insert into correct_exercises(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
+    const [result] = await pool.query('insert into correctexercise(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
     res.json({
       id_correct: result.insertId,
       ...req.body,
@@ -117,7 +145,7 @@ export const createCorrect = async (req, res) => {
 
 export const createIncorrect = async (req, res) => {
   try {
-    const [result] = await pool.query('insert into incorrect_exercises(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
+    const [result] = await pool.query('insert into incorrectexercise(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
     res.json({
       id_correct: result.insertId,
       ...req.body,
@@ -130,7 +158,7 @@ export const createIncorrect = async (req, res) => {
 
 export const checkExercise = async (req, res) => {
   try {
-    const [result] = await pool.query('SELECT SUM(total) as total FROM (SELECT COUNT(*) as total FROM correct_exercises WHERE id_user = ? AND id_exercise = ? UNION ALL SELECT COUNT(*) as total FROM incorrect_exercises WHERE id_user = ? AND id_exercise = ?) as combined;', [req.body.id_user,req.body.id_exercise, req.body.id_user,req.body.id_exercise]);
+    const [result] = await pool.query('SELECT SUM(total) as total FROM (SELECT COUNT(*) as total FROM correctexercise WHERE id_user = ? AND id_exercise = ? UNION ALL SELECT COUNT(*) as total FROM incorrectexercise WHERE id_user = ? AND id_exercise = ?) as combined;', [req.body.id_user,req.body.id_exercise, req.body.id_user,req.body.id_exercise]);
     res.json(result);
   } catch (error) {
     console.error('Error en checkExercise:', error);
@@ -140,7 +168,7 @@ export const checkExercise = async (req, res) => {
 
 export const getExercisesTypes = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM exercise_types');
+    const [rows] = await pool.query('SELECT * FROM exercisetype');
     res.json(rows);
   } catch (error) {
     console.error('Error en getExercisesTypes:', error);
