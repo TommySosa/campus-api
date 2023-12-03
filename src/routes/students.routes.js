@@ -7,6 +7,6 @@ router.get('/students', getStudents);
 router.get('/students/:id_user', getStudentById);
 router.post('/students', createStudent);
 router.put('/students/:id_student_course', updateStudent)
-router.delete('/students/:id_user', deleteStudent);
+router.delete('/students/:id_student_course', deleteStudent);
 
 export default router;

@@ -11,11 +11,16 @@ export const getStudentById = async (req, res) => {
 }
 
 export const createStudent = async (req, res) => {
-    const [result] = await pool.query('INSERT INTO studentcourse (id_user, id_course) VALUES (?, ?)', [req.body.id_user, req.body.id_course])
-    res.json({
-        id_user: result.insertId,
-        ...req.body
-    })
+    try {
+        const [result] = await pool.query('INSERT INTO studentcourse (id_user, id_course) VALUES (?, ?)', [req.body.id_user, req.body.id_course])
+        res.json({
+            id_student_course: result.insertId,
+            ...req.body
+        })
+    } catch (error) {
+        console.error('Error en createStudent:', error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
 }
 
 export const updateStudent = async (req, res) => {
@@ -36,6 +41,6 @@ export const updateStudent = async (req, res) => {
 }
 
 export const deleteStudent = async (req, res) => {
-    await pool.query('DELETE FROM user WHERE id_user = ?', [req.params.id_user])
+    await pool.query('DELETE FROM studentcourse WHERE id_student_course = ?', [req.params.id_student_course])
     res.sendStatus(204)
 }
