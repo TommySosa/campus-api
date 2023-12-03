@@ -10,6 +10,26 @@ export const getExercises = async (req, res) => {
   }
 };
 
+export const getCorrectExercisesByidUser = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM correct_exercises where id_user = ?', [req.params.id_user]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error en getCorrectExercises:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+export const getIncorrectExercisesByidUser = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM incorrect_exercises');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error en getIncorrectExercises:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
 export const getExerciseById = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM exercises WHERE id_exercise = ?', [req.params.id_exercise]);
@@ -81,3 +101,49 @@ export const deleteExercise = async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 };
+
+export const createCorrect = async (req, res) => {
+  try {
+    const [result] = await pool.query('insert into correct_exercises(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
+    res.json({
+      id_correct: result.insertId,
+      ...req.body,
+    });
+  } catch (error) {
+    console.error('Error en correct:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}
+
+export const createIncorrect = async (req, res) => {
+  try {
+    const [result] = await pool.query('insert into incorrect_exercises(id_exercise, id_user) values(?, ?)', [req.body.id_exercise, req.body.id_user])
+    res.json({
+      id_correct: result.insertId,
+      ...req.body,
+    });
+  } catch (error) {
+    console.error('Error en incorrect:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}
+
+export const checkExercise = async (req, res) => {
+  try {
+    const [result] = await pool.query('SELECT SUM(total) as total FROM (SELECT COUNT(*) as total FROM correct_exercises WHERE id_user = ? AND id_exercise = ? UNION ALL SELECT COUNT(*) as total FROM incorrect_exercises WHERE id_user = ? AND id_exercise = ?) as combined;', [req.body.id_user,req.body.id_exercise, req.body.id_user,req.body.id_exercise]);
+    res.json(result);
+  } catch (error) {
+    console.error('Error en checkExercise:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}
+
+export const getExercisesTypes = async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM exercise_types');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error en getExercisesTypes:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}

@@ -11,7 +11,7 @@ export const getCourseById = async (req, res) => {
 }
 
 export const createCourse = async (req, res) => {
-    const [result] = await pool.query('INSERT INTO courses (name, description, url_image, id_category, id_teacher) VALUES (?, ?, ?, ?)', [req.body.name, req.body.description, req.body.url_image, req.body.id_category, req.body.id_teacher])
+    const [result] = await pool.query('INSERT INTO courses (name, description, url_image, id_category, id_user) VALUES (?, ?, ?, ?, ?)', [req.body.name, req.body.description, req.body.url_image, req.body.id_category, req.body.id_user])
     res.json({
         id_course: result.insertId,
         ...req.body
@@ -19,7 +19,7 @@ export const createCourse = async (req, res) => {
 }
 
 export const updateCourse = async (req, res) => {
-    await pool.query('UPDATE courses SET name = IFNULL(?, name), description = IFNULL(?, description), url_image = IFNULL(?, url_image), id_category = IFNULL(?, id_category), id_teacher = IFNULL(?, id_teacher) WHERE id_course = ?', [req.body.name, req.body.description, req.body.url_image, req.body.id_category,req.body.id_teacher ,req.params.id_course])
+    await pool.query('UPDATE courses SET name = IFNULL(?, name), description = IFNULL(?, description), url_image = IFNULL(?, url_image), id_category = IFNULL(?, id_category), id_user = IFNULL(?, id_user) WHERE id_course = ?', [req.body.name, req.body.description, req.body.url_image, req.body.id_category,req.body.id_user ,req.params.id_course])
     res.json({
         id_course: req.params.id,
         ...req.body
