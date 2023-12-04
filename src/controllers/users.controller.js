@@ -58,3 +58,13 @@ export const cambiarRolUsuario = async (req, res) => {
   }
 };
 
+export const getRoles = async(req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * from role')
+    res.json(rows)
+  } catch (error) {
+    console.error('Error en getRoles:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+}
+
