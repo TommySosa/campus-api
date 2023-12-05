@@ -1,7 +1,7 @@
 import { pool } from '../db.js'
 
 export const getCourses = async (req, res) => {
-    const [rows] = await pool.query('SELECT * FROM course where active = true')
+    const [rows] = await pool.query('SELECT c.id_course, c.name, c.description, c.url_image, ca.name as category_name, concat(u.name, " ", u.surname) as teacher_name, c.id_category FROM course c inner join category ca on c.id_category = ca.id_category inner join user u on c.id_user = u.id_user where c.active = true')
     res.json(rows)
 }
 

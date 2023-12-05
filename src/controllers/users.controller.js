@@ -58,6 +58,23 @@ export const cambiarRolUsuario = async (req, res) => {
   }
 };
 
+export const updateProfile = async (req, res) => {
+  try {
+    const [result] = await pool.query('UPDATE user SET name = IFNULL(?, name), description = IFNULL(?, description), genre = IFNULL(?, genre), profile_url = IFNULL(?, profile_url) WHERE id_user = ?', [req.body.name, req.body.description, req.body.genre, req.body.profile_url, req.params.id_user]);
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'No se encontró el ejercicio para actualizar' });
+    } else {
+      res.json({
+        id_user: req.params.id_user,
+        ...req.body,
+      });
+    }
+  } catch (error) {
+    console.error('Error en updateProfile:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
 export const getRoles = async(req, res) => {
   try {
     const [rows] = await pool.query('SELECT * from role')
@@ -67,4 +84,14 @@ export const getRoles = async(req, res) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 }
+
+// export const getGenres = async(req,res) => {
+//   try {
+//     const [rows] = await pool.query('SELECT * from genre')
+//     res.json(rows)
+//   } catch (error) {
+//     console.error('Error en getGenres:', error);
+//     res.status(500).json({ error: 'Error en el servidor' });
+//   }
+// }
 

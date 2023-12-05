@@ -10,43 +10,55 @@ export const getContentsByIdCourse = async (req, res) => {
     }
 }
 
-// export const getCourseById = async (req, res) => {
-//     const [rows] = await pool.query('SELECT * FROM course WHERE id_course = ? and active = true', [req.params.id_course])
-//     res.json(rows[0])
-// }
-
-export const createContent= async (req, res) => {
+export const getContentById = async (req, res) => {
     try {
-        const [result] = await pool.query('INSERT INTO coursecontent (title, description, pdf_url, course_id) VALUES (?, ?, ?, ?)', [req.body.title, req.body.description, req.body.pdf_url, req.body.course_id])
-        res.json({
-            id_content: result.insertId,
-            ...req.body
-        })      
+        const [rows] = await pool.query('SELECT * FROM coursecontent where active = true and id_content = ?', req.params.id_content)
+        res.json(rows[0])
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Error en el servidor' });
     }
 }
 
-export const updateCourse = async (req, res) => {
-    await pool.query('UPDATE course SET name = IFNULL(?, name), description = IFNULL(?, description), url_image = IFNULL(?, url_image), id_category = IFNULL(?, id_category), id_user = IFNULL(?, id_user) WHERE id_course = ?', [req.body.name, req.body.description, req.body.url_image, req.body.id_category, req.body.id_user, req.params.id_course])
+// export const getCourseById = async (req, res) => {
+//     const [rows] = await pool.query('SELECT * FROM course WHERE id_course = ? and active = true', [req.params.id_course])
+//     res.json(rows[0])
+// }
+export const getContents = async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM coursecontent where active = true')
+        res.json(rows)
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+}
+
+export const createContent = async (req, res) => {
+    try {
+        const [result] = await pool.query('INSERT INTO coursecontent (title, description, pdf_url, course_id) VALUES (?, ?, ?, ?)', [req.body.title, req.body.description, req.body.pdf_url, req.body.course_id])
+        res.json({
+            id_content: result.insertId,
+            ...req.body
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+}
+
+export const updateContent = async (req, res) => {
+    await pool.query('UPDATE coursecontent SET title = IFNULL(?, title), description = IFNULL(?, description), pdf_url = IFNULL(?, pdf_url), course_id = IFNULL(?, course_id) WHERE id_content = ?', [req.body.title, req.body.description, req.body.pdf_url, req.body.course_id, req.params.id_content])
     res.json({
-        id_course: req.params.id,
+        id_content: req.params.id,
         ...req.body
     })
 }
 
-export const deleteCourse = async (req, res) => {
+export const deleteContent = async (req, res) => {
     try {
-        const [result] = await pool.query('UPDATE course SET active = false WHERE id_course = ?', [req.params.id_course])
-        if (result.affectedRows === 0) {
-            res.status(404).json({ error: 'No se encontró el curso para actualizar' });
-        } else {
-            res.json({
-                id_course: req.params.id_course,
-                ...req.body,
-            });
-        }
+        await pool.query('DELETE FROM coursecontent WHERE id_content = ?', [req.params.id_content])
+        res.sendStatus(204)
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Error en el servidor' });

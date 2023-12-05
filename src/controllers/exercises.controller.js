@@ -2,7 +2,7 @@ import { pool } from '../db.js';
 
 export const getExercises = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM exercise where active = true');
+    const [rows] = await pool.query('SELECT e.id_exercise, e.name, e.instruction, e.active, e.id_type, m.name as module_name, c.name as course_name FROM exercise e inner join module m on e.id_module = m.id_module inner join course c on m.id_course = c.id_course where e.active = true');
     res.json(rows);
   } catch (error) {
     console.error('Error en getExercises:', error);
