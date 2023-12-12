@@ -1,4 +1,4 @@
-import {pool} from '../db.js'
+import { pool } from '../db.js'
 
 export const getModules = async (req, res) => {
     try {
@@ -14,7 +14,7 @@ export const getModules = async (req, res) => {
     }
 };
 
-export const getModuleById = async(req,res) => {
+export const getModuleById = async (req, res) => {
     try {
         const [rows] = await pool.query('select * from module where id_module = ? and active = true', req.params.id_module)
         console.log(rows[0]);
@@ -75,5 +75,31 @@ export const deleteModule = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: 'Error en el servidor' });
+    }
+}
+
+export const checkIsCompleted = async (req, res) => {
+    const { id_user, id_module } = req.body;
+    try {
+        const [rows] = await pool.query(`
+        SELECT
+        (
+            SELECT COUNT(DISTINCT ce.id_exercise) + COUNT(DISTINCT ic.id_exercise)
+            FROM exercise e
+            LEFT JOIN correctexercise ce ON e.id_exercise = ce.id_exercise AND ce.id_user = ${id_user}
+            LEFT JOIN incorrectexercise ic ON e.id_exercise = ic.id_exercise AND ic.id_user = ${id_user}
+            WHERE e.id_module = ${id_module}
+        ) AS total_realizados,
+        (
+            SELECT COUNT(id_exercise)
+            FROM exercise
+            WHERE id_module = ${id_module} and active = true
+        ) AS total_modulo;
+        `);
+
+        res.json(rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }

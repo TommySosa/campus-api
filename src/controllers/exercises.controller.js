@@ -53,7 +53,7 @@ export const getIncorrectExercisesByidCourse = async (req, res) => {
 
 export const getProgressForInscriptions = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT sc.id_course, c.name AS course_name, COUNT(DISTINCT ce.id_correct) AS correct_count, COUNT(DISTINCT ie.id_incorrect) AS incorrect_count FROM StudentCourse sc JOIN Course c ON sc.id_course = c.id_course LEFT JOIN Module m ON c.id_course = m.id_course LEFT JOIN Exercise e ON m.id_module = e.id_module LEFT JOIN CorrectExercise ce ON sc.id_user = ce.id_user AND e.id_exercise = ce.id_exercise LEFT JOIN IncorrectExercise ie ON sc.id_user = ie.id_user AND e.id_exercise = ie.id_exercise WHERE sc.id_user = ? GROUP BY sc.id_course, c.name;'
+    const [rows] = await pool.query('SELECT sc.id_course, c.name AS course_name, COUNT(DISTINCT ce.id_correct) AS correct_count, COUNT(DISTINCT ie.id_incorrect) AS incorrect_count, COUNT(DISTINCT e.id_exercise) AS total_exercises FROM StudentCourse sc JOIN Course c ON sc.id_course = c.id_course LEFT JOIN Module m ON c.id_course = m.id_course LEFT JOIN Exercise e ON m.id_module = e.id_module and e.active = true and m.active = true LEFT JOIN CorrectExercise ce ON sc.id_user = ce.id_user AND e.id_exercise = ce.id_exercise LEFT JOIN IncorrectExercise ie ON sc.id_user = ie.id_user AND e.id_exercise = ie.id_exercise WHERE sc.id_user = ? GROUP BY sc.id_course, c.name;'
     ,[req.params.id_user])
     res.json(rows)
   } catch (error) {
