@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {getInscriptos,getCourses,getGradesByIdUser, addGradeToInscription, getCourseById, createCourse, updateCourse, deleteCourse, getCourseTeachers, getInscriptosByIdUser, getInscriptions, getInscription, getAvgExercises, getAvgExercisesByIdStudentCourse} from '../controllers/courses.controller.js';
+import {getInscriptos,getCourses,getGradesByIdUser,getGradesByIdInscription, addGradeToInscription, getCourseById, createCourse, updateCourse, deleteCourse, getCourseTeachers, getInscriptosByIdUser, getInscriptions, getInscription, getAvgExercises, getAvgExercisesByIdStudentCourse} from '../controllers/courses.controller.js';
 
 const router = Router();
 
@@ -15,6 +15,7 @@ router.get('/inscriptions', getInscriptions)
 router.get('/inscription/:id_student_course', getInscription)
 router.post('/grade', addGradeToInscription)
 router.get('/grades/:id_user', getGradesByIdUser)
+router.get('/inscription-grades/:id_student_course', getGradesByIdInscription)
 router.get('/avg/:id_user', getAvgExercises)
 router.get('/avg-by-inscription/:id_student_course', getAvgExercisesByIdStudentCourse)
 
