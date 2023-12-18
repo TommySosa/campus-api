@@ -9,6 +9,10 @@ import multipleRoutes from "./routes/multiple.routes.js";
 import trueFalseRoutes from "./routes/true_false.routes.js";
 import attendanceRoutes from "./routes/attendace.routes.js";
 import usersRoutes from "./routes/users.routes.js";
+import categoryRoutes from "./routes/category.routes.js";
+import contentRoutes from "./routes/content.routes.js"
+import forumRoutes from "./routes/forum.routes.js"
+import deliverableRoutes from "./routes/deliverable.routes.js"
 
 const app = express();
 
@@ -25,6 +29,10 @@ app.use("/api", multipleRoutes);
 app.use("/api", trueFalseRoutes);
 app.use("/api", attendanceRoutes);
 app.use("/api", usersRoutes);
+app.use("/api", categoryRoutes);
+app.use("/api", contentRoutes);
+app.use("/api", forumRoutes);
+app.use("/api", deliverableRoutes)
 
 app.listen(4001, () => {
   console.log("Servidor iniciado en el puerto 4001");

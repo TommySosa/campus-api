@@ -2,7 +2,7 @@ import { pool } from '../db.js';
 
 export const getMultiples = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM multiple_choise');
+    const [rows] = await pool.query('SELECT * FROM multiplechoise');
     res.json(rows);
   } catch (error) {
     console.error('Error en getMultiples:', error);
@@ -12,7 +12,7 @@ export const getMultiples = async (req, res) => {
 
 export const getMultipleById = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM multiple_choise WHERE id_exercise = ?', [req.params.id_exercise]);
+    const [rows] = await pool.query('SELECT * FROM multiplechoise WHERE id_exercise = ?', [req.params.id_exercise]);
     if (rows.length === 0) {
       res.status(404).json({ error: 'No se encontró el ejercicio' });
     } else {
@@ -37,7 +37,7 @@ export const createMultiple = async (req, res) => {
       const optionsJSON = JSON.stringify(options);
 
       const [result] = await pool.query(
-        'INSERT INTO multiple_choise (id_exercise, options) VALUES (?, ?)',
+        'INSERT INTO multiplechoise (id_exercise, options) VALUES (?, ?)',
         [id_exercise, optionsJSON]
       );
   
@@ -59,7 +59,11 @@ export const createMultiple = async (req, res) => {
 
 export const updateMultiple = async (req, res) => {
   try {
-    const [result] = await pool.query('UPDATE multiple_choise SET id_exercise = IFNULL(?, id_exercise), options = IFNULL(?, options) WHERE id_exercise = ?', [req.body.id_exercise, req.body.options, req.params.id_exercise]);
+    const { id_exercise, options } = req.body;
+
+    const optionsJSON = JSON.stringify(options);
+
+    const [result] = await pool.query('UPDATE multiplechoise SET options = IFNULL(?, options) WHERE id_exercise = ?', [optionsJSON, id_exercise]);
     if (result.affectedRows === 0) {
       res.status(404).json({ error: 'No se encontró el ejercicio para actualizar' });
     } else {
@@ -76,7 +80,7 @@ export const updateMultiple = async (req, res) => {
 
 export const deleteMultiple = async (req, res) => {
   try {
-    const result = await pool.query('DELETE FROM multiple_choise WHERE id_exercise = ?', [req.params.id_exercise]);
+    const result = await pool.query('DELETE FROM multiplechoise WHERE id_exercise = ?', [req.params.id_exercise]);
     if (result.affectedRows === 0) {
       res.status(404).json({ error: 'No se encontró el ejercicio para eliminar' });
     } else {

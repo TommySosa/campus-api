@@ -1,12 +1,12 @@
 import {pool} from '../db.js'
 
 export const getTeachers = async (req, res) => {
-    const [rows] = await pool.query('SELECT * FROM users WHERE id_rol = 2')
+    const [rows] = await pool.query('SELECT * FROM user WHERE id_rol = 2')
     res.json(rows)
 }
 
 export const getTeacherById = async (req, res) => {
-    const [rows] = await pool.query('SELECT * FROM teachers WHERE id_user = ?', [req.params.id_user])
+    const [rows] = await pool.query('SELECT * FROM user WHERE id_user = ?', [req.params.id_user])
     res.json(rows[0])
 }
 

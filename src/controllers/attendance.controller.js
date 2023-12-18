@@ -2,7 +2,7 @@ import {pool} from '../db.js'
 
 
 export const getAttendances = async(req, res) => {
-    const [rows] = await pool.query('select id, attendance.id_user, date, name, surname, email, profile_url, dni,id_rol from attendance inner join users on attendance.id_user = users.id_user;')
+    const [rows] = await pool.query('select id, attendance.id_user, date, name, surname, email, profile_url, dni,id_rol from attendance inner join user on attendance.id_user = user.id_user;')
     res.json(rows)
 }
 
@@ -10,7 +10,7 @@ export const createAttendance = async (req, res) => {
     try {
         const { dni } = req.body;
     
-        const [userRows, userFields] = await pool.execute('SELECT id_user, name, surname, profile_url FROM users WHERE dni = ?', [dni]);
+        const [userRows, userFields] = await pool.execute('SELECT id_user, name, surname, profile_url FROM user WHERE dni = ?', [dni]);
     
         if (userRows.length === 0) {
           return res.status(404).json({ error: 'Usuario no encontrado' });
