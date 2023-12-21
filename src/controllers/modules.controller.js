@@ -88,7 +88,7 @@ export const checkIsCompleted = async (req, res) => {
             FROM exercise e
             LEFT JOIN correctexercise ce ON e.id_exercise = ce.id_exercise AND ce.id_user = ${id_user}
             LEFT JOIN incorrectexercise ic ON e.id_exercise = ic.id_exercise AND ic.id_user = ${id_user}
-            WHERE e.id_module = ${id_module}
+            WHERE e.id_module = ${id_module} and e.active = true
         ) AS total_realizados,
         (
             SELECT COUNT(id_exercise)
